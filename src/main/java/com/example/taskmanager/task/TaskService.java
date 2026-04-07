@@ -1,19 +1,18 @@
-package com.example.taskmanager;
+package com.example.taskmanager.task;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.jspecify.annotations.NonNull;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 public class TaskService {
     private final TaskRepository taskRepository;
 
-    public TaskService(TaskRepository taskRepository, TaskRepository taskRepository1) {
+    public TaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
@@ -26,15 +25,16 @@ public class TaskService {
         List<TaskEntity> allEntity = taskRepository.findAll();
         return allEntity.stream().map(this::toTask).toList();
     }
-
+    @Transactional
     public void deleteTask(Long id) {
         var taskEntity = taskRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Not found task by id=" + id));
-        if (taskEntity.getStatus() != TaskStatus.CREATED){
-            throw new IllegalArgumentException("Cannot deleted task with status=COMPLITE");
+        if (taskEntity.getStatus() != TaskStatus.DONE){
+            throw new IllegalArgumentException("Cannot deleted task with status=DONE");
         }
         taskRepository.deleteById(id);
 
     }
+    @Transactional
     public Task createTask(@NonNull Task taskToCreate) {
         if (taskToCreate.status() != null){
             throw new IllegalArgumentException("Status should be empty");
@@ -52,10 +52,8 @@ public class TaskService {
         var savedEntity = taskRepository.save(entityToSave);
         return toTask(savedEntity);
     }
+    @Transactional
     public Task updateTask(Long id, Task tasktoUpdate) {
-        if (!taskRepository.existsById(id)){
-            throw new NoSuchElementException("Not founded task with id=" + id);
-        }
         var taskEntity = taskRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Not found task by id=" + id));
         if (taskEntity.getStatus() == TaskStatus.DONE && !tasktoUpdate.status().equals(TaskStatus.IN_PROGRESS)){
             throw new IllegalArgumentException("Cannot updated task with status = " + tasktoUpdate.status());
@@ -88,9 +86,6 @@ public class TaskService {
 
     public Task startTask(Long id) {
         var taskEntity = taskRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Not found task by id=" + id));
-        if (taskEntity.getAssignedUserId() == null){
-            throw new IllegalArgumentException("Assigned user id should be empty");
-        }
         if (taskEntity.getStatus() != TaskStatus.CREATED){
             throw new IllegalArgumentException("Task status should be 'CREATE'");
         }

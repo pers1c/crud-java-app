@@ -1,4 +1,4 @@
-package com.example.taskmanager;
+package com.example.taskmanager.web;
 
 import java.time.LocalDateTime;
 

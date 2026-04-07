@@ -1,10 +1,7 @@
-package com.example.taskmanager;
+package com.example.taskmanager.web;
 import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.cglib.core.Local;
-import org.springframework.data.crossstore.ChangeSetPersister;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -13,11 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.LocalDateTime;
 
 @ControllerAdvice
-public class GlobalExceptionHeadler {
+public class GlobalExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHeadler.class);
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDto> headlerException(
+    public ResponseEntity<ErrorResponseDto> handlerException(
             Exception e
     ){
         var errorDto = new ErrorResponseDto(
@@ -29,7 +26,7 @@ public class GlobalExceptionHeadler {
         return ResponseEntity.status(500).body(errorDto);
     }
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponseDto> headlerNotFoundException(
+    public ResponseEntity<ErrorResponseDto> handlerNotFoundException(
             EntityNotFoundException e
     ){
         var errorDto = new ErrorResponseDto(
@@ -45,7 +42,7 @@ public class GlobalExceptionHeadler {
             IllegalStateException.class,
             MethodArgumentNotValidException.class
     })
-    public ResponseEntity<ErrorResponseDto> headlerBadRequest(
+    public ResponseEntity<ErrorResponseDto> handlerBadRequest(
             Exception e
     ){
         var errorDto = new ErrorResponseDto(
